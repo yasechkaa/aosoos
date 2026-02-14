@@ -1,0 +1,9 @@
+server {
+    listen {{ my_port }};
+    server_name _;
+
+    location /files {
+        alias /var/www/files;
+        autoindex on;
+    }
+}

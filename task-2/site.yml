@@ -1,0 +1,44 @@
+---
+- name: Модуль для порта Nginx
+  hosts: all
+  become: yes
+  
+  vars:
+    my_port: 8080  # тут можно менять порт
+
+  tasks:
+    - name: Установка nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Создание папки
+      file:
+        path: /var/www/files
+        state: directory
+
+    - name: Создание файла с номером порта
+      copy:
+        content: "Порт = {{ my_port }}"
+        dest: /var/www/files/port.txt
+
+    - name: Копирование конфига с портом
+      template:
+        src: simple.conf.j2
+        dest: /etc/nginx/sites-available/simple
+
+    - name: Включение сайта
+      file:
+        src: /etc/nginx/sites-available/simple
+        dest: /etc/nginx/sites-enabled/simple
+        state: link
+
+    - name: Удаление дефолта
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Перезапуск nginx
+      service:
+        name: nginx
+        state: restarted
